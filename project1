@@ -1,0 +1,171 @@
+//Program Name
+//Lawrence Su 3645884 University of California Santa Barbara ECE Department
+//github.com/lawrence-su123
+//CS16 Spring 2019
+//Date:
+// Program Function
+// How to run the program
+// Bugs (Hopefully this line will be empty :) )
+//
+
+
+
+#include <iostream>
+#include <cstdlib>
+#include <fstream> //reading from /txt files
+#include <string>
+#include <cstring>
+#include <sstream>
+
+//#include "linkedlist.h"
+using namespace std;
+
+
+// creating structure for the linked list, it can be imprted from a .h file later
+struct Apartment
+{
+	int id;
+       	int rent;
+       	string location;
+	int bedrooms;
+       	string laundry;
+	Apartment* prev;
+	Apartment* next;
+
+
+};
+
+struct Student
+{
+	int id;
+	int rent;
+	int bedrooms;
+	string location;
+	int laundry;
+};
+
+struct ApartmentList
+{
+	ApartmentList();
+	~ApartmentList();
+
+	Apartment* header;
+	Apartment*trailer;
+
+	void insert(const Apartment& newapartment);
+	void add(Apartment* v, const int id, const int rent, const string location, const int br, const string lau);                void remove(Apartment* v);
+	void addFront(const int id, const int rent, const string location, const int br, const string lau);
+	void removeFront();
+	bool isEmpty();
+		
+};
+
+void insertlist() {
+}
+
+ApartmentList::ApartmentList() {
+	header = new Apartment;
+	trailer = new Apartment;
+	header->next = trailer;
+	trailer->prev = header;
+}
+
+
+bool ApartmentList::isEmpty() 
+	{ return (header->next == trailer); }
+
+
+ApartmentList::~ApartmentList() {
+	while (!isEmpty()) removeFront();
+	delete header;
+	delete trailer;
+}
+
+void ApartmentList::add(Apartment* v, const int id, const int rent, const string location, const int br, const string lau) {
+	Apartment* u = new Apartment; 
+	u->id = id;
+	u->rent = rent;
+	u->location = location;
+	u->bedrooms = br;
+	u->laundry = lau;
+	u->next = v->prev;
+	v->prev->next = v->prev = u;
+}
+
+void ApartmentList::remove(Apartment* v) {
+	Apartment* u = v->prev;
+	Apartment* w = v->next;
+	u->next = w;
+	w->prev = u;
+	delete v;
+}
+
+void ApartmentList::addFront(const int id, const int rent, const string location, const int br, const string lau ) 
+	{ add(header->next, id, rent, location, br, lau); }
+
+class WaitingStudentQueue {
+	public:
+		WaitingStudentQueue();
+		bool isEmpty() const;
+		const Student& front();
+		void enqueue(const Student& s);
+		void dequeue();
+	private:
+		LinkedList L;
+		int n;
+};
+
+
+int main(int argc, char *argv[])
+{
+	ifstream ifs;
+	string line;
+	if (argc!=3)
+	{
+		cerr << "Usage: "<< argv[0] << " Input apartment file followed by the student file" <<endl;
+		exit(-1);
+	}
+	ifs.open(argv[1]);
+	
+
+	if (ifs.fail())
+	{
+		cerr<< "Unable to open the file :("<<endl;
+		exit(-1);
+	}
+
+        ifs.open(argv[1]);
+
+
+	if (ifs)
+        {
+                while (getline( ifs, line))
+                {
+                        istringstream ss(line);
+
+                        int id, rent, bedrooms;
+                        string location, laundry;
+
+                        ss >> id >> location >> bedrooms >> laundry >> rent;
+
+                        cout << location;
+                        
+                }
+        }
+        ifs.close();
+
+		
+	ifs.open(argv[2]);
+	
+
+	if (ifs.fail())
+	{
+		cerr<< "Unable to open the file :("<<endl;
+		exit(-1);
+	}
+	
+	while (getline(ifs,line))
+	{
+		line;	
+	}
+}
