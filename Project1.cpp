@@ -15,6 +15,7 @@
 #include <fstream> //reading from /txt files
 #include <string>
 #include <cstring>
+#include <sstream>
 
 //#include "linkedlist.h"
 using namespace std;
@@ -24,63 +25,182 @@ using namespace std;
 struct Apartment
 {
 	int id;
-	int rent;
-	char location;
+       	int rent;
+       	string location;
 	int bedrooms;
-	bool laundry;
+       	string laundry;
+	Apartment* prev;
+	Apartment* next;
 
 
-	Node *next;
-	Node *prev;
 };
 
-struct student
+struct Student
 {
 	int id;
 	int rent;
+	int bedrooms;
+	string location;
+	int laundry;
 
-struct Apartment_list
+};
+
+struct ApartmentList
 {
-	Node* head;
-	Node*tail;
+	ApartmentList();
+	~ApartmentList();
+
+	Apartment* header;
+	Apartment*trailer;
+
+	void insert(const Apartment& newapartment);
+	void add(Apartment* v, int id, int rent, string location, int br, string lau);
+       	void remove(Apartment* v);
+	void removeFront();
+	bool isEmpty();
+		
 };
 
 void insertlist() {
 }
 
+ApartmentList::ApartmentList() {
+	header = new Apartment;
+	trailer = new Apartment;
+	header->next = trailer;
+	trailer->prev = header;
+}
 
-//void 
 
+bool ApartmentList::isEmpty() 
+	{ return (header->next == trailer); }
+
+
+ApartmentList::~ApartmentList() {
+	while (!isEmpty()){
+		delete header;
+		delete trailer;
+	}
+}
+
+void ApartmentList::add(Apartment* v, const int id, const int rent, const string location, const int br, const string lau) {
+	Apartment* u = new Apartment; 
+	u->id = id;
+	u->rent = rent;
+	u->location = location;
+	u->bedrooms = br;
+	u->laundry = lau;
+	u->next = v;
+	u->prev = v->prev;
+	v->prev->next = v->prev = u;
+}
+
+void ApartmentList::remove(Apartment* v) {
+	Apartment* u = v->prev;
+	Apartment* w = v->next;
+	u->next = w;
+	w->prev = u;
+	delete v;
+}
+
+struct CNode {
+	Student student;
+	CNode* next;
+};
+
+struct CircleList {
+	CircleList();
+	~CircleList();
+	bool empty() const;
+	void add(const Student& s);
+	void remove();
+	
+	CNode* cursor;
+};
+
+CircleList::CircleList()
+	: cursor(NULL) {}
+CircleList::~CircleList()
+	{ while (!empty()) remove(); }
+
+bool CircleList::empty() const
+	{ return cursor == NULL; }
+
+void CircleList::add(const Student& s){
+	CNode* v = new CNode;
+	v->student = s;
+	if (cursor == NULL) {
+		v->next = v;
+		cursor = v;
+	}
+	else {
+		v->next = cursor->next;
+		cursor->next = v;
+	}
+}
+
+void CircleList::remove() {
+	CNode* old = cursor->next;
+	if (old == cursor)
+		cursor = NULL;
+	else
+		cursor->next = old->next;
+	delete old;
+}
+
+class WaitingStudentQueue {
+		WaitingStudentQueue();
+		bool isEmpty() const;
+		const Student& front();
+		void enqueue(const Student& s);
+		void dequeue();
+};
 
 
 int main(int argc, char *argv[])
 {
 	ifstream ifs;
-	string my_line;
+	ifs.open(argv[1]);
+	string line;
+
+	ApartmentList alist;
+
 	if (argc!=3)
 	{
 		cerr << "Usage: "<< argv[0] << " Input apartment file followed by the student file" <<endl;
 		exit(-1);
 	}
-	ifs.open(argv[1]);
 	
 
 	if (ifs.fail())
 	{
 		cerr<< "Unable to open the file :("<<endl;
-		exit(-1)
+		exit(-1);
 	}
-	
-	while (getline(ifs,my_line))
-	{
-		if (my_line != " ")
-		{
-			counter ++;
-			for (int i =0; i<
-		}
-	}
-	ifs.close();
 
+
+
+
+                while (getline( ifs, line))
+                {
+                        istringstream ss(line);
+
+                        int id, rent, bedrooms;
+                        string location, laundry;
+
+                        ss >> id >> location >> bedrooms >> laundry >> rent;
+
+			alist.add(alist.header->next, id, rent, location, bedrooms, laundry);
+
+			cout << alist.trailer->prev << "\n";
+
+			cout << alist.trailer->prev->id << "\n";
+                        
+                }
+        
+        ifs.close();
+
+	cout << alist.trailer;
 		
 	ifs.open(argv[2]);
 	
@@ -88,12 +208,11 @@ int main(int argc, char *argv[])
 	if (ifs.fail())
 	{
 		cerr<< "Unable to open the file :("<<endl;
-		exit(-1)
+		exit(-1);
 	}
 	
-	while (getline(ifs,my_line))
+	while (getline(ifs,line))
 	{
-	
+		line;	
 	}
-	return 0
 }
