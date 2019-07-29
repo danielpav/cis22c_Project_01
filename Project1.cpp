@@ -27,7 +27,7 @@ struct Apartment
 	int id;
        	int rent;
        	string location;
-	int bedrooms;
+	string  bedrooms;
        	string laundry;
 	Apartment* prev;
 	Apartment* next;
@@ -38,15 +38,17 @@ struct Apartment
 struct Student
 {
 	int id;
+	string name;
 	int rent;
-	int bedrooms;
+	string bedrooms;
 	string location;
-	int laundry;
+	string laundry;
 
 };
 
-struct ApartmentList
+class ApartmentList
 {
+	public:
 	ApartmentList();
 	~ApartmentList();
 
@@ -54,10 +56,10 @@ struct ApartmentList
 	Apartment*trailer;
 
 	void insert(const Apartment& newapartment);
-	void add(Apartment* v, int id, int rent, string location, int br, string lau);
+	void add(Apartment* v, int id ,int rent, string location, int br, string lau);
        	void remove(Apartment* v);
-	void removeFront();
 	bool isEmpty();
+	int size;
 		
 };
 
@@ -93,6 +95,7 @@ void ApartmentList::add(Apartment* v, const int id, const int rent, const string
 	u->next = v;
 	u->prev = v->prev;
 	v->prev->next = v->prev = u;
+	size ++;
 }
 
 void ApartmentList::remove(Apartment* v) {
@@ -103,58 +106,51 @@ void ApartmentList::remove(Apartment* v) {
 	delete v;
 }
 
-struct CNode {
-	Student student;
-	CNode* next;
+class SNode {
+	public:
+ 		Student student;
+		SNode* next;
+
+	friend class WaitingStudentQueue;
 };
-
-struct CircleList {
-	CircleList();
-	~CircleList();
-	bool empty() const;
-	void add(const Student& s);
-	void remove();
-	
-	CNode* cursor;
-};
-
-CircleList::CircleList()
-	: cursor(NULL) {}
-CircleList::~CircleList()
-	{ while (!empty()) remove(); }
-
-bool CircleList::empty() const
-	{ return cursor == NULL; }
-
-void CircleList::add(const Student& s){
-	CNode* v = new CNode;
-	v->student = s;
-	if (cursor == NULL) {
-		v->next = v;
-		cursor = v;
-	}
-	else {
-		v->next = cursor->next;
-		cursor->next = v;
-	}
-}
-
-void CircleList::remove() {
-	CNode* old = cursor->next;
-	if (old == cursor)
-		cursor = NULL;
-	else
-		cursor->next = old->next;
-	delete old;
-}
 
 class WaitingStudentQueue {
+	public:
 		WaitingStudentQueue();
 		bool isEmpty() const;
-		const Student& front();
-		void enqueue(const Student& s);
-		void dequeue();
+		void enqueue(Student s);
+		SNode* dequeue();
+		SNode *front, *rear;
 };
+
+WaitingStudentQueue::WaitingStudentQueue() {
+	front = NULL;
+	rear= NULL;
+}
+
+
+void WaitingStudentQueue::enqueue(const Student s) {
+	SNode* v = new SNode();
+	v->student = s;
+	v->next = NULL;
+
+	if(rear == NULL) {
+		front = rear = v;
+	}
+	else {
+		rear->next = v;
+		rear = v;
+	}
+}
+
+SNode* WaitingStudentQueue::dequeue() {
+	SNode* old = front;
+	front = old->next;
+	return old;
+
+}
+
+
 
 
 int main(int argc, char *argv[])
@@ -163,7 +159,10 @@ int main(int argc, char *argv[])
 	ifs.open(argv[1]);
 	string line;
 
+	Student s;
 	ApartmentList alist;
+	WaitingStudentQueue squeue;
+	int alsize;
 
 	if (argc!=3)
 	{
@@ -192,18 +191,13 @@ int main(int argc, char *argv[])
 
 			alist.add(alist.header->next, id, rent, location, bedrooms, laundry);
 
-			cout << alist.trailer->prev << "\n";
+			cout << alist.trailer->prev->id << endl;
 
-			cout << alist.trailer->prev->id << "\n";
-                        
                 }
         
         ifs.close();
 
-	cout << alist.trailer;
-		
 	ifs.open(argv[2]);
-	
 
 	if (ifs.fail())
 	{
@@ -213,6 +207,68 @@ int main(int argc, char *argv[])
 	
 	while (getline(ifs,line))
 	{
-		line;	
+		istringstream ss(line);
+
+		int sid, srent;
+		string sname, slocation, slaundry, sbedrooms;	
+
+		ss >> sid >> sname >>  slocation >> sbedrooms >> slaundry >> srent;
+
+		s.id = sid;
+		s.rent = srent;
+		s.name = sname;
+		s.location = slocation;
+		s.laundry = slaundry;
+		s.bedrooms = sbedrooms;
+		squeue.enqueue(s);
+	
 	}
+
+	SNode* deq;
+
+
+	Apartment* p = alist.trailer;
+	Apartment* r;
+	cout << alist.size  << " " << p->id << endl;
+	
+	for (SNode* q=squeue.front->next; q!= NULL; q = q->next){
+		cout << q->student.name << endl;
+		bool b = 0;
+		p = alist.trailer;
+		for(int i=0; i<alsize&&(p->prev!=NULL)&&(b!=1); i++){
+			if((p->location == q->student.location || q->student.location == "Any")&&(p->bedrooms == q ->student.bedrooms || q->student.bedrooms == "Any")&&(p->rent <= q->student.rent)&&(q->student.laundry == p->laundry || p->laundry == "Any"))
+			{
+				cout << "The apartment " << p->id << " is assigned to " << q->student.name << " (" << q->student.id << ")." << endl;
+
+				if(p->prev != NULL)
+				{
+
+				}
+
+
+				b =1;
+			}
+			if (b == 1){
+				cout << p->id << endl;
+				r = p;
+			}
+			p = p->prev;
+
+		}
+		if (b==1){
+			alist.remove(r);
+		}
+		if (b == 0) {
+			cout << "There are no apartments satisfying " << q->student.name << " (" << q->student.id << ")'s requirements." << endl;
+		}
+	}
+	Apartment * a = new Apartment;
+	  
+	for ( Apartment* cursor = alist.trailer; cursor->prev != NULL; cursor= cursor->prev){
+		cout<<"The apartment "<< cursor->id << " is unassigned."<<endl;
+	}
+return 0;
+
+
+
 }
