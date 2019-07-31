@@ -69,6 +69,7 @@ void insertlist() {
 ApartmentList::ApartmentList() {
 	header = new Apartment;
 	trailer = new Apartment;
+	size = 0;
 	header->next = trailer;
 	trailer->prev = header;
 }
@@ -162,7 +163,6 @@ int main(int argc, char *argv[])
 	Student s;
 	ApartmentList alist;
 	WaitingStudentQueue squeue;
-	int alsize;
 
 	if (argc!=3)
 	{
@@ -190,8 +190,6 @@ int main(int argc, char *argv[])
                         ss >> id >> location >> bedrooms >> laundry >> rent;
 
 			alist.add(alist.header->next, id, rent, location, bedrooms, laundry);
-
-			cout << alist.trailer->prev->id << endl;
 
                 }
         
@@ -221,22 +219,21 @@ int main(int argc, char *argv[])
 		s.laundry = slaundry;
 		s.bedrooms = sbedrooms;
 		squeue.enqueue(s);
-	
+
 	}
 
 	SNode* deq;
 
 
-	Apartment* p = alist.trailer;
+	Apartment* p = alist.trailer->prev;
 	Apartment* r;
 	cout << alist.size  << " " << p->id << endl;
 	
 	for (SNode* q=squeue.front->next; q!= NULL; q = q->next){
-		cout << q->student.name << endl;
 		bool b = 0;
 		p = alist.trailer;
-		for(int i=0; i<alsize&&(p->prev!=NULL)&&(b!=1); i++){
-			if((p->location == q->student.location || q->student.location == "Any")&&(p->bedrooms == q ->student.bedrooms || q->student.bedrooms == "Any")&&(p->rent <= q->student.rent)&&(q->student.laundry == p->laundry || p->laundry == "Any"))
+		for(int i=0; i<alist.size&&(p->prev!=NULL)&&(b!=1); i++){
+			if((p->location == q->student.location || q->student.location == "Any")&&(p->bedrooms == q->student.bedrooms || q->student.bedrooms == "Any")&&(p->rent <= q->student.rent)&&(q->student.laundry == p->laundry || p->laundry == "Any"))
 			{
 				cout << "The apartment " << p->id << " is assigned to " << q->student.name << " (" << q->student.id << ")." << endl;
 
