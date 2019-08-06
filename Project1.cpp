@@ -56,7 +56,7 @@ class ApartmentList
 	Apartment*trailer;
 
 	void insert(const Apartment& newapartment);
-	void add(Apartment* v, int id ,int rent, string location, int br, string lau);
+	void add(Apartment* v, int id ,int rent, string location, string br, string lau);
        	void remove(Apartment* v);
 	bool isEmpty();
 	int size;
@@ -71,7 +71,9 @@ ApartmentList::ApartmentList() {
 	trailer = new Apartment;
 	size = 0;
 	header->next = trailer;
+	header->prev = 0;
 	trailer->prev = header;
+	trailer->next = 0;
 }
 
 
@@ -86,7 +88,7 @@ ApartmentList::~ApartmentList() {
 	}
 }
 
-void ApartmentList::add(Apartment* v, const int id, const int rent, const string location, const int br, const string lau) {
+void ApartmentList::add(Apartment* v, const int id, const int rent, const string location, const string br, const string lau) {
 	Apartment* u = new Apartment; 
 	u->id = id;
 	u->rent = rent;
@@ -95,7 +97,8 @@ void ApartmentList::add(Apartment* v, const int id, const int rent, const string
 	u->laundry = lau;
 	u->next = v;
 	u->prev = v->prev;
-	v->prev->next = v->prev = u;
+	v->prev->next = u;
+	v->prev = u;
 	size ++;
 }
 
@@ -119,23 +122,23 @@ class WaitingStudentQueue {
 	public:
 		WaitingStudentQueue();
 		bool isEmpty() const;
-		void enqueue(Student s);
+		void enqueue(const Student s);
 		SNode* dequeue();
 		SNode *front, *rear;
 };
 
 WaitingStudentQueue::WaitingStudentQueue() {
-	front = NULL;
-	rear= NULL;
+	front = 0;
+	rear= 0;
 }
 
 
 void WaitingStudentQueue::enqueue(const Student s) {
 	SNode* v = new SNode();
 	v->student = s;
-	v->next = NULL;
+	v->next = 0;
 
-	if(rear == NULL) {
+	if(rear == 0) {
 		front = rear = v;
 	}
 	else {
@@ -184,8 +187,8 @@ int main(int argc, char *argv[])
                 {
                         istringstream ss(line);
 
-                        int id, rent, bedrooms;
-                        string location, laundry;
+                        int id, rent;
+                        string bedrooms, location, laundry;
 
                         ss >> id >> location >> bedrooms >> laundry >> rent;
 
@@ -208,7 +211,7 @@ int main(int argc, char *argv[])
 		istringstream ss(line);
 
 		int sid, srent;
-		string sname, slocation, slaundry, sbedrooms;	
+		std::string sname, slocation, slaundry, sbedrooms;	
 
 		ss >> sid >> sname >>  slocation >> sbedrooms >> slaundry >> srent;
 
@@ -221,51 +224,44 @@ int main(int argc, char *argv[])
 		squeue.enqueue(s);
 
 	}
+	ifs.close();
 
 	SNode* deq;
 
 
-	Apartment* p = alist.trailer->prev;
+	Apartment* p; 
 	Apartment* r;
-	cout << alist.size  << " " << p->id << endl;
+	cout << alist.size  << endl;
+
 	
-	for (SNode* q=squeue.front->next; q!= NULL; q = q->next){
-		bool b = 0;
-		p = alist.trailer;
-		for(int i=0; i<alist.size&&(p->prev!=NULL)&&(b!=1); i++){
-			if((p->location == q->student.location || q->student.location == "Any")&&(p->bedrooms == q->student.bedrooms || q->student.bedrooms == "Any")&&(p->rent <= q->student.rent)&&(q->student.laundry == p->laundry || p->laundry == "Any"))
+	//iterate through student queue 
+	for (auto q=squeue.front->next; q->next!= 0; q = q->next){
+		bool assigned = 0;
+		//iterate through apartment list
+		for(auto p = alist.trailer->prev; p->prev!=0; p=p->prev){
+			if(((p->location == q->student.location) || (q->student.location == "Any"))&&((p->bedrooms == q->student.bedrooms) || (q->student.bedrooms == "Any"))&&(p->rent <= q->student.rent)&&((q->student.laundry == p->laundry) || (q->student.laundry == "Any")))
 			{
 				cout << "The apartment " << p->id << " is assigned to " << q->student.name << " (" << q->student.id << ")." << endl;
 
-				if(p->prev != NULL)
-				{
-
-				}
-
-
-				b =1;
+				alist.remove(p);
+				assigned = 1;
+				break;
 			}
-			if (b == 1){
-				cout << p->id << endl;
-				r = p;
-			}
-			p = p->prev;
-
+	
 		}
-		if (b==1){
-			alist.remove(r);
-		}
-		if (b == 0) {
+		
+		if(assigned==0) 
 			cout << "There are no apartments satisfying " << q->student.name << " (" << q->student.id << ")'s requirements." << endl;
-		}
 	}
-	Apartment * a = new Apartment;
+	
 	  
-	for ( Apartment* cursor = alist.trailer; cursor->prev != NULL; cursor= cursor->prev){
+	for ( Apartment* cursor = alist.trailer->prev; cursor->prev != 0; cursor= cursor->prev){
 		cout<<"The apartment "<< cursor->id << " is unassigned."<<endl;
 	}
-return 0;
 
 
 
+
+	exit(0);
 }
+
