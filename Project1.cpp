@@ -22,7 +22,7 @@ using namespace std;
 
 
 // creating structure for the linked list, it can be imprted from a .h file later
-struct Apartment
+struct Apartment //apartment node
 {
 	int id;
        	int rent;
@@ -35,7 +35,7 @@ struct Apartment
 
 };
 
-struct Student
+struct Student //student list node
 {
 	int id;
 	string name;
@@ -46,7 +46,7 @@ struct Student
 
 };
 
-class ApartmentList
+class ApartmentList //apartment list
 {
 	public:
 	ApartmentList();
@@ -54,7 +54,7 @@ class ApartmentList
 
 	Apartment* header;
 	Apartment*trailer;
-
+//apartment function constructor
 	void insert(const Apartment& newapartment);
 	void add(Apartment* v, int id ,int rent, string location, string br, string lau);
        	void remove(Apartment* v);
@@ -63,6 +63,7 @@ class ApartmentList
 		
 };
 
+//inserting into linked list
 void insertlist() {
 }
 
@@ -77,7 +78,7 @@ ApartmentList::ApartmentList() {
 }
 
 
-bool ApartmentList::isEmpty() 
+bool ApartmentList::isEmpty() //checks if list in empty
 	{ return (header->next == trailer); }
 
 
@@ -87,7 +88,7 @@ ApartmentList::~ApartmentList() {
 		delete trailer;
 	}
 }
-
+//add data into apartment node, and inserts the node in the list
 void ApartmentList::add(Apartment* v, const int id, const int rent, const string location, const string br, const string lau) {
 	Apartment* u = new Apartment; 
 	u->id = id;
@@ -101,7 +102,7 @@ void ApartmentList::add(Apartment* v, const int id, const int rent, const string
 	v->prev = u;
 	size ++;
 }
-
+//remove node from list
 void ApartmentList::remove(Apartment* v) {
 	Apartment* u = v->prev;
 	Apartment* w = v->next;
@@ -110,6 +111,7 @@ void ApartmentList::remove(Apartment* v) {
 	delete v;
 }
 
+//student queue node
 class SNode {
 	public:
  		Student student;
@@ -117,7 +119,7 @@ class SNode {
 
 	friend class WaitingStudentQueue;
 };
-
+//constructor for queue as a linked list
 class WaitingStudentQueue {
 	public:
 		WaitingStudentQueue();
@@ -132,7 +134,7 @@ WaitingStudentQueue::WaitingStudentQueue() {
 	rear= 0;
 }
 
-
+//add to end of queue, enqueue
 void WaitingStudentQueue::enqueue(const Student s) {
 	SNode* v = new SNode();
 	v->student = s;
@@ -146,7 +148,7 @@ void WaitingStudentQueue::enqueue(const Student s) {
 		rear = v;
 	}
 }
-
+//remove from front of queue, dequeue
 SNode* WaitingStudentQueue::dequeue() {
 	SNode* old = front;
 	front = old->next;
@@ -167,7 +169,7 @@ int main(int argc, char *argv[])
 	ApartmentList alist;
 	WaitingStudentQueue squeue;
 
-	if (argc!=3)
+	if (argc!=3) //checking if number of input files is correct
 	{
 		cerr << "Usage: "<< argv[0] << " Input apartment file followed by the student file" <<endl;
 		exit(-1);
@@ -183,22 +185,22 @@ int main(int argc, char *argv[])
 
 
 
-                while (getline( ifs, line))
+                while (getline( ifs, line)) //while files is still being read
                 {
                         istringstream ss(line);
 
                         int id, rent;
                         string bedrooms, location, laundry;
 
-                        ss >> id >> location >> bedrooms >> laundry >> rent;
+                        ss >> id >> location >> bedrooms >> laundry >> rent;//assign variables to these values
 
-			alist.add(alist.header->next, id, rent, location, bedrooms, laundry);
+			alist.add(alist.header->next, id, rent, location, bedrooms, laundry);//add assigned variables to linked list
 
                 }
         
         ifs.close();
 
-	ifs.open(argv[2]);
+	ifs.open(argv[2]);//open second file
 
 	if (ifs.fail())
 	{
@@ -213,8 +215,7 @@ int main(int argc, char *argv[])
 		int sid, srent;
 		std::string sname, slocation, slaundry, sbedrooms;	
 
-		ss >> sid >> sname >>  slocation >> sbedrooms >> slaundry >> srent;
-
+		ss >> sid >> sname >>  slocation >> sbedrooms >> slaundry >> srent;//assigns strings and ints to variables
 		s.id = sid;
 		s.rent = srent;
 		s.name = sname;
@@ -222,6 +223,7 @@ int main(int argc, char *argv[])
 		s.laundry = slaundry;
 		s.bedrooms = sbedrooms;
 		squeue.enqueue(s);
+		//enqueue the variables
 
 	}
 	ifs.close();
@@ -239,11 +241,11 @@ int main(int argc, char *argv[])
 		bool assigned = 0;
 		//iterate through apartment list
 		for(auto p = alist.trailer->prev; p->prev!=0; p=p->prev){
-			if(((p->location == q->student.location) || (q->student.location == "Any"))&&((p->bedrooms == q->student.bedrooms) || (q->student.bedrooms == "Any"))&&(p->rent <= q->student.rent)&&((q->student.laundry == p->laundry) || (q->student.laundry == "Any")))
+			if(((p->location == q->student.location) || (q->student.location == "Any"))&&((p->bedrooms == q->student.bedrooms) || (q->student.bedrooms == "Any"))&&(p->rent <= q->student.rent)&&((q->student.laundry == p->laundry) || (q->student.laundry == "Any"))) //check conditions
 			{
 				cout << "The apartment " << p->id << " is assigned to " << q->student.name << " (" << q->student.id << ")." << endl;
 
-				alist.remove(p);
+				alist.remove(p);//remove apartment from list if taken
 				assigned = 1;
 				break;
 			}
@@ -254,7 +256,7 @@ int main(int argc, char *argv[])
 			cout << "There are no apartments satisfying " << q->student.name << " (" << q->student.id << ")'s requirements." << endl;
 	}
 	
-	  
+	//iterate through apartmnet list for unassigned apartments  
 	for ( Apartment* cursor = alist.trailer->prev; cursor->prev != 0; cursor= cursor->prev){
 		cout<<"The apartment "<< cursor->id << " is unassigned."<<endl;
 	}
