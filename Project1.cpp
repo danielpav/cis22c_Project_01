@@ -4,7 +4,7 @@
 //CS16 Spring 2019
 //Date:
 // Program Function
-// How to run the program
+// How to run the program: g++ -o Project1 Project1.cpp File.txt File.txt
 // Bugs (Hopefully this line will be empty :) )
 //
 
